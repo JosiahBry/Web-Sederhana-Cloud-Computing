@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Photo Journal</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --danger-color: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            padding: 20px 0;
+        }
+
+        .container {
+            max-width: 1200px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: white;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .upload-card {
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 20px;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+
+        .card-body {
+            padding: 30px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-control, .form-control:focus {
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-primary {
+            background: var(--bg-gradient);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .photo-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .photo-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .photo-card .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .photo-caption {
+            flex: 1;
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 15px;
+            word-wrap: break-word;
+        }
+
+        .photo-date {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: #999;
+            margin-bottom: 10px;
+        }
+
+        .preview-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input-label:hover {
+            background: #e9ecef;
+            border-color: var(--primary-color);
+        }
+
+        .file-input-label i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="bi bi-camera-fill"></i> Browser Photo Journal</h1>
+            <p>Simpan kenangan Anda dengan mudah dan aman di browser</p>
+        </div>
+
+        <!-- Upload Form Card -->
+        <div class="card upload-card">
+            <div class="card-header">
+                <i class="bi bi-cloud-upload"></i> Upload Foto Baru
+            </div>
+            <div class="card-body">
+                <form id="uploadForm">
+                    <div class="mb-4">
+                        <label for="photoInput" class="form-label">
+                            <i class="bi bi-image"></i> Pilih Foto
+                        </label>
+                        <div class="file-input-wrapper">
+                            <input type="file" 
+                                   id="photoInput" 
+                                   class="form-control" 
+                                   accept="image/*" 
+                                   required>
+                            <label for="photoInput" class="file-input-label">
+                                <i class="bi bi-cloud-upload"></i>
+                                <div>Klik untuk memilih foto atau drag & drop</div>
+                                <small class="text-muted">Format: JPG, PNG, GIF, WEBP</small>
+                            </label>
+                        </div>
+                        <div id="previewContainer" class="preview-container" style="display: none;">
+                            <img id="previewImage" class="preview-image" alt="Preview">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="captionInput" class="form-label">
+                            <i class="bi bi-chat-text"></i> Caption
+                        </label>
+                        <input type="text" 
+                               id="captionInput" 
+                               class="form-control" 
+                               placeholder="Tuliskan caption untuk foto ini..."
+                               maxlength="200">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-circle"></i> Simpan Foto
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Gallery Card -->
+        <div class="card">
+            <div class="card-header">
+                <i class="bi bi-images"></i> Galeri Foto 
+                <span id="photoCount" class="badge bg-light text-dark ms-2">0</span>
+            </div>
+            <div class="card-body">
+                <div id="galleryContainer">
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <h3>Belum ada foto</h3>
+                        <p>Upload foto pertama Anda untuk memulai!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ============================================
+        // KONSTANTA DAN VARIABEL GLOBAL
+        // ============================================
+        const STORAGE_KEY = 'photoJournal';
+        const photoInput = document.getElementById('photoInput');
+        const captionInput = document.getElementById('captionInput');
+        const uploadForm = document.getElementById('uploadForm');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewImage = document.getElementById('previewImage');
+        const galleryContainer = document.getElementById('galleryContainer');
+        const photoCount = document.getElementById('photoCount');
+
+        // ============================================
+        // FUNGSI UTILITAS - LOCALSTORAGE
+        // ============================================
+
+        /**
+         * Mengambil semua foto dari localStorage
+         * @returns {Array} Array of photo objects
+         */
+        function getPhotos() {
+            try {
+                const photosJson = localStorage.getItem(STORAGE_KEY);
+                return photosJson ? JSON.parse(photosJson) : [];
+            } catch (error) {
+                console.error('Error reading from localStorage:', error);
+                return [];
+            }
+        }
+
+        /**
+         * Menyimpan array foto ke localStorage
+         * @param {Array} photos - Array of photo objects
+         */
+        function savePhotos(photos) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(photos));
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                alert('Gagal menyimpan foto. Storage mungkin penuh.');
+            }
+        }
+
+        /**
+         * Menghapus foto berdasarkan ID
+         * @param {string} id - ID foto yang akan dihapus
+         */
+        function deletePhoto(id) {
+            const photos = getPhotos();
+            const filteredPhotos = photos.filter(photo => photo.id !== id);
+            savePhotos(filteredPhotos);
+            renderGallery();
+        }
+
+        /**
+         * Menambahkan foto baru ke localStorage
+         * @param {string} imageBase64 - Base64 string dari gambar
+         * @param {string} caption - Caption foto
+         */
+        function addPhoto(imageBase64, caption) {
+            const photos = getPhotos();
+            const newPhoto = {
+                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                imageBase64: imageBase64,
+                caption: caption || 'Tanpa caption',
+                date: new Date().toISOString()
+            };
+            photos.push(newPhoto);
+            savePhotos(photos);
+            renderGallery();
+        }
+
+        // ============================================
+        // FUNGSI FILE HANDLING - FILEREADER API
+        // ============================================
+
+        /**
+         * Mengonversi file gambar menjadi Base64 string
+         * @param {File} file - File gambar yang akan dikonversi
+         * @returns {Promise<string>} Promise yang resolve dengan Base64 string
+         */
+        function convertToBase64(file) {
+            return new Promise((resolve, reject) => {
+                // Validasi tipe file
+                if (!file.type.startsWith('image/')) {
+                    reject(new Error('File harus berupa gambar'));
+                    return;
+                }
+
+                // Validasi ukuran file (maksimal 5MB)
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                if (file.size > maxSize) {
+                    reject(new Error('Ukuran file maksimal 5MB'));
+                    return;
+                }
+
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    resolve(event.target.result);
+                };
+                
+                reader.onerror = function(error) {
+                    reject(new Error('Gagal membaca file: ' + error));
+                };
+                
+                // Membaca file sebagai Data URL (Base64)
+                reader.readAsDataURL(file);
+            });
+        }
+
+        /**
+         * Menampilkan preview gambar sebelum upload
+         * @param {File} file - File gambar
+         */
+        function showPreview(file) {
+            convertToBase64(file)
+                .then(base64 => {
+                    previewImage.src = base64;
+                    previewContainer.style.display = 'block';
+                })
+                .catch(error => {
+                    alert(error.message);
+                    photoInput.value = '';
+                });
+        }
+
+        // ============================================
+        // FUNGSI RENDERING UI
+        // ============================================
+
+        /**
+         * Memformat tanggal menjadi format yang lebih readable
+         * @param {string} dateString - ISO date string
+         * @returns {string} Formatted date string
+         */
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const options = { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return date.toLocaleDateString('id-ID', options);
+        }
+
+        /**
+         * Merender galeri foto dari data localStorage
+         */
+        function renderGallery() {
+            const photos = getPhotos();
+            
+            // Update counter
+            photoCount.textContent = photos.length;
+
+            // Jika tidak ada foto, tampilkan empty state
+            if (photos.length === 0) {
+                galleryContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="bi bi-inbox"></i>
+                        <h3>Belum ada foto</h3>
+                        <p>Upload foto pertama Anda untuk memulai!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render grid gallery
+            galleryContainer.innerHTML = `
+                <div class="gallery-grid">
+                    ${photos.map(photo => `
+                        <div class="card photo-card fade-in">
+                            <img src="${photo.imageBase64}" 
+                                 alt="${photo.caption}" 
+                                 class="card-img-top"
+                                 loading="lazy">
+                            <div class="card-body">
+                                <p class="photo-caption">${escapeHtml(photo.caption)}</p>
+                                <p class="photo-date">
+                                    <i class="bi bi-calendar3"></i> ${formatDate(photo.date)}
+                                </p>
+                                <button class="btn btn-danger w-100" 
+                                        onclick="deletePhoto('${photo.id}')">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        /**
+         * Escape HTML untuk mencegah XSS
+         * @param {string} text - Text yang akan di-escape
+         * @returns {string} Escaped HTML string
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ============================================
+        // EVENT HANDLERS
+        // ============================================
+
+        /**
+         * Handler untuk perubahan file input
+         */
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                showPreview(file);
+            } else {
+                previewContainer.style.display = 'none';
+            }
+        });
+
+        /**
+         * Handler untuk submit form
+         */
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const file = photoInput.files[0];
+            const caption = captionInput.value.trim();
+
+            if (!file) {
+                alert('Silakan pilih foto terlebih dahulu!');
+                return;
+            }
+
+            try {
+                // Tampilkan loading state
+                const submitButton = uploadForm.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Memproses...';
+                submitButton.disabled = true;
+
+                // Konversi ke Base64
+                const base64 = await convertToBase64(file);
+
+                // Simpan ke localStorage
+                addPhoto(base64, caption);
+
+                // Reset form
+                uploadForm.reset();
+                previewContainer.style.display = 'none';
+                
+                // Tampilkan success message
+                alert('Foto berhasil disimpan!');
+
+                // Restore button
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+                const submitButton = uploadForm.querySelector('button[type="submit"]');
+                submitButton.disabled = false;
+            }
+        });
+
+        // ============================================
+        // INISIALISASI APLIKASI
+        // ============================================
+
+        // Render gallery saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            renderGallery();
+        });
+
+        // Drag and drop functionality
+        const fileInputLabel = document.querySelector('.file-input-label');
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            fileInputLabel.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            fileInputLabel.addEventListener(eventName, function() {
+                fileInputLabel.style.borderColor = 'var(--primary-color)';
+                fileInputLabel.style.background = '#e9ecef';
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            fileInputLabel.addEventListener(eventName, function() {
+                fileInputLabel.style.borderColor = '#dee2e6';
+                fileInputLabel.style.background = '#f8f9fa';
+            }, false);
+        });
+
+        fileInputLabel.addEventListener('drop', function(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                photoInput.files = files;
+                const event = new Event('change', { bubbles: true });
+                photoInput.dispatchEvent(event);
+            }
+        }, false);
+    </script>
+</body>
+</html>
+
